@@ -717,8 +717,10 @@ public class FogDevice extends PowerDatacenter {
         		}
         	}
         	int pid = parentId;
+        	System.out.print(routerIds);
     		parentId = FController.getCapacityPlacement(routerIds, FController.CPU_UTILIZATION);
-    		System.out.println("CAPACITY |Setting parentId from :" + pid + " to:" + parentId + " for " + getName());
+    		
+    		//System.out.println("CAPACITY |Setting parentId from :" + pid + " to:" + parentId + " for " + getName());
         }
 		
 		/*if(getName().equals("d-0") && tuple.getTupleType().equals("_SENSOR")){

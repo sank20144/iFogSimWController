@@ -44,12 +44,12 @@ public class RP_new {
 	
 	// All test variables
 	
-	static int numOfAreas = 60;
-	static int numOfCamerasPerArea = 3;
+	static int numOfAreas = 20;
+	static int numOfCamerasPerArea = 6;
 	
 	private static boolean CLOUD = false;
 	private static boolean CAPACITY = false; // Capacity placement defaults to cpu utilization
-	private static boolean EDGEWARDS = true;
+	private static boolean EDGEWARDS = false;
 	
 	
 	
@@ -134,7 +134,15 @@ public class RP_new {
 	}
 
 	private static FogDevice addArea(String id, int userId, String appId, int parentId){
-		FogDevice router = createFogDevice("d-"+id, 2800, 4000, 10000, 10000, 1, 0.0, 107.339, 83.4333);
+		long mips = 10000;
+        double ratePerMips = 0;
+        long upBw = 10000;
+        long downBw = 10000;
+        int ram = 4000; 
+        double busyPower = 107.339; 
+        double idlePower = 83.4333;
+        
+        FogDevice router = createFogDevice("d-"+id, mips, ram, upBw, downBw, 1, ratePerMips, busyPower,idlePower );
 		fogDevices.add(router);
 		router.setUplinkLatency(2); // latency of connection between router and proxy server is 2 ms
 		for(int i=0;i<numOfCamerasPerArea;i++){
