@@ -694,6 +694,51 @@ public class FogDevice extends PowerDatacenter {
             updateCloudTraffic();
         }
         
+        try {
+			List<List<String>> rows = Arrays.asList(
+					Arrays.asList(
+							String.valueOf(tuple.getCloudletId()), 
+				    		String.valueOf(tuple.getCloudletLength()),
+				    		String.valueOf(tuple.getCloudletFileSize()),
+				    		String.valueOf(tuple.getCloudletOutputSize()),
+				    		String.valueOf(tuple.getCostPerBw()),
+				    		String.valueOf(tuple.getSourceDeviceId()),
+				    		String.valueOf(tuple.getDestinationDeviceId()),
+				    		String.valueOf(tuple.getAccumulatedBwCost()),
+				    		String.valueOf(tuple.getDestModuleName()),
+				    		Logger.getTupleDirection(tuple),
+				    		tuple.getTupleType(),
+				    		String.valueOf(tuple.getExecStartTime()),
+				    		String.valueOf(tuple.getFinishTime()),
+				    		String.valueOf(tuple.getUtilizationModelBw().getUtilization(0)),
+				    		String.valueOf(tuple.getUtilizationModelCpu().getUtilization(0)),
+				    		String.valueOf(tuple.getUtilizationModelRam().getUtilization(0)),
+				    		
+				    		getName(),
+				    		String.valueOf(getHost().getAvailableMips()),
+				    		String.valueOf(getHost().getRam()),
+				    		String.valueOf(getUplinkBandwidth()),
+				    		String.valueOf(getDownlinkBandwidth()),
+				    		String.valueOf(getLevel()),
+				    		String.valueOf(getRatePerMips()),
+				    		String.valueOf(getHost().getMaxPower()),
+				    		String.valueOf(getHost().getPowerModel().getPower(0)),
+				    		String.valueOf(getHost().getPowerModel().getPower(getLastUtilization())),
+				    		String.valueOf(getHost().getUtilizationOfCpu()),
+				    		String.valueOf(getHost().getUtilizationOfBw()),
+				    		String.valueOf(getHost().getUtilizationOfCpuMips()),
+				    		String.valueOf(getHost().getUtilizationOfRam()),
+				    		String.valueOf(getHost().getUtilizationMips()),
+				    		Logger.getNodeAction(tuple, this),
+				    		String.valueOf(getEnergyConsumption()),
+				    		String.valueOf(Logger.getTotalEnergy()),
+				    		String.valueOf(NetworkUsageMonitor.getNetworkUsage() / Config.MAX_SIMULATION_TIME)
+							));
+			Logger.printTupleToCsv(rows);
+			}catch(Exception e) {
+				
+			}
+        
         
         // Random Placement
         if(getName().startsWith("m") && (!FController.CLOUD && !FController.CAPACITY && !FController.EDGEWARDS)) { // Is a camera?
@@ -720,7 +765,7 @@ public class FogDevice extends PowerDatacenter {
         	System.out.print(routerIds);
     		parentId = FController.getCapacityPlacement(routerIds, FController.CPU_UTILIZATION);
     		
-    		//System.out.println("CAPACITY |Setting parentId from :" + pid + " to:" + parentId + " for " + getName());
+    		System.out.println("CAPACITY |Setting parentId from :" + pid + " to:" + parentId + " for " + getName());
         }
 		
 		/*if(getName().equals("d-0") && tuple.getTupleType().equals("_SENSOR")){
@@ -829,6 +874,14 @@ public class FogDevice extends PowerDatacenter {
     protected void processSensorJoining(SimEvent ev) {
         send(ev.getSource(), CloudSim.getMinTimeBetweenEvents(), FogEvents.TUPLE_ACK);
     }
+    
+    public Map<String, List<String>> getAppToModulesMap(){
+		return appToModulesMap;
+	}
+    
+    public double getLastUtilization() {
+		return lastUtilization;
+	}
 
     protected void executeTuple(SimEvent ev, String moduleName) {
         Logger.debug(getName(), "Executing tuple on module " + moduleName);

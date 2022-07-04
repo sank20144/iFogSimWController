@@ -556,6 +556,12 @@ public class Cloudlet {
 	public int getNumberOfPes() {
 		return numberOfPes;
 	}
+	 public double getCostPerBw() {
+			return costPerBw;
+		}
+	 public double getAccumulatedBwCost() {
+			return accumulatedBwCost;
+		}
 
 	/**
 	 * Gets the history of this Cloudlet. The layout of this history is in a readable table column

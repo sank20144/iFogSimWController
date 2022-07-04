@@ -55,7 +55,7 @@ public class RP_new {
 	
 	public static void main(String[] args) {
 
-		Log.printLine("Starting DCNS...");
+		Log.printLine("Starting strategy test");
 
 		try {
 			Log.disable();
@@ -65,7 +65,7 @@ public class RP_new {
 
 			CloudSim.init(num_user, calendar, trace_flag);
 
-			String appId = "dcns"; // identifier of the application
+			String appId = "PlacementTest"; // identifier of the application
 			
 			FogBroker broker = new FogBroker("broker");
 			
