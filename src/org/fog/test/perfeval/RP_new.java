@@ -48,7 +48,7 @@ public class RP_new {
 	static int numOfCamerasPerArea = 6;
 	
 	private static boolean CLOUD = false;
-	private static boolean CAPACITY = false; // Capacity placement defaults to cpu utilization
+	private static boolean CAPACITY = true; // Capacity placement defaults to cpu utilization
 	private static boolean EDGEWARDS = false;
 	
 	
@@ -142,7 +142,7 @@ public class RP_new {
         double busyPower = 107.339; 
         double idlePower = 83.4333;
         
-        FogDevice router = createFogDevice("d-"+id, mips, ram, upBw, downBw, 1, ratePerMips, busyPower,idlePower );
+        FogDevice router = createFogDevice("d-"+id, mips, ram, upBw, downBw, 2, ratePerMips, busyPower,idlePower );
 		fogDevices.add(router);
 		router.setUplinkLatency(2); // latency of connection between router and proxy server is 2 ms
 		for(int i=0;i<numOfCamerasPerArea;i++){
