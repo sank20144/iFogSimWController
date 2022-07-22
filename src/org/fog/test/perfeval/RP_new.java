@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.cloudbus.cloudsim.Host;
 import org.cloudbus.cloudsim.Log;
@@ -44,11 +45,11 @@ public class RP_new {
 	
 	// All test variables
 	
-	static int numOfAreas = 20;
-	static int numOfCamerasPerArea = 6;
+	static int numOfAreas = 4;
+	static int numOfCamerasPerArea = 2;
 	
-	private static boolean CLOUD = false;
-	private static boolean CAPACITY = true; // Capacity placement defaults to cpu utilization
+	private static boolean CLOUD = true;
+	private static boolean CAPACITY = false; // Capacity placement defaults to cpu utilization
 	private static boolean EDGEWARDS = false;
 	
 	
@@ -78,13 +79,14 @@ public class RP_new {
 			
 			ModuleMapping moduleMapping = ModuleMapping.createModuleMapping(); // initializing a module mapping
 			for(FogDevice device : fogDevices){
-				if(device.getName().startsWith("m")){ // names of all Smart Cameras start with 'm' 
+				if(device.getName().startsWith("m") && !CLOUD){ // names of all Smart Cameras start with 'm' 
 					moduleMapping.addModuleToDevice("motion_detector", device.getName());  // fixing 1 instance of the Motion Detector module to each Smart Camera
 				}
 			}
 			moduleMapping.addModuleToDevice("user_interface", "cloud"); // fixing instances of User Interface module in the Cloud
 			if(CLOUD){
 				// if the mode of deployment is cloud-based
+				moduleMapping.addModuleToDevice("motion_detector", "cloud");
 				moduleMapping.addModuleToDevice("object_detector", "cloud"); // placing all instances of Object Detector module in the Cloud
 				moduleMapping.addModuleToDevice("object_tracker", "cloud"); // placing all instances of Object Tracker module in the Cloud
 			}
@@ -125,7 +127,7 @@ public class RP_new {
 		proxy.setUplinkLatency(100); // latency of connection between proxy server and cloud is 100 ms
 		fogDevices.add(proxy);
 		for(int i=0;i<numOfAreas;i++){
-			addArea(i+"", userId, appId, proxy.getId());
+			addArea(i+"", userId, appId, proxy.getId(), i);
 		}
 		//Propagates placement strategy
 		FController.CAPACITY = CAPACITY;
@@ -133,21 +135,25 @@ public class RP_new {
 		FController.EDGEWARDS = EDGEWARDS;
 	}
 
-	private static FogDevice addArea(String id, int userId, String appId, int parentId){
-		long mips = 10000;
+	private static FogDevice addArea(String id, int userId, String appId, int parentId, int areas){
+		long mips = 5600 - (areas*1200);
+		int ram = 6000 - (areas*1000); 
+        long upBw = 10000 - (areas*2500);
+        long downBw = 10000 - (areas*2500);
+        
         double ratePerMips = 0;
-        long upBw = 10000;
-        long downBw = 10000;
-        int ram = 4000; 
         double busyPower = 107.339; 
         double idlePower = 83.4333;
         
+        int randomNum = ThreadLocalRandom.current().nextInt(100, 450 + 1); //Get Random latency between 100-200
+        
         FogDevice router = createFogDevice("d-"+id, mips, ram, upBw, downBw, 2, ratePerMips, busyPower,idlePower );
+        
+        router.setUplinkLatency(randomNum); // latency of connection between router and proxy server is random
 		fogDevices.add(router);
-		router.setUplinkLatency(2); // latency of connection between router and proxy server is 2 ms
 		for(int i=0;i<numOfCamerasPerArea;i++){
 			String mobileId = id+"-"+i;
-			FogDevice camera = addCamera(mobileId, userId, appId, router.getId()); // adding a smart camera to the physical topology. Smart cameras have been modeled as fog devices as well.
+			FogDevice camera = addCamera(mobileId, userId, appId, router.getId(), areas); // adding a smart camera to the physical topology. Smart cameras have been modeled as fog devices as well.
 			camera.setUplinkLatency(2); // latency of connection between camera and router is 2 ms
 			fogDevices.add(camera);
 		}
@@ -155,9 +161,13 @@ public class RP_new {
 		return router;
 	}
 	
-	private static FogDevice addCamera(String id, int userId, String appId, int parentId){
-		FogDevice camera = createFogDevice("m-"+id, 500, 1000, 10000, 10000, 3, 0, 87.53, 82.44);
+	private static FogDevice addCamera(String id, int userId, String appId, int parentId, int i){
+		long mips = 500 - (i*10);
+		int ram = 1000 - (i*20);
+		
+		FogDevice camera = createFogDevice("m-"+id, mips, ram, 10000, 10000, 3, 0, 87.53, 82.44);
 		camera.setParentId(parentId);
+		camera.setUplinkLatency(100);
 		Sensor sensor = new Sensor("s-"+id, "CAMERA", userId, appId, new DeterministicDistribution(5)); // inter-transmission time of camera (sensor) follows a deterministic distribution
 		sensors.add(sensor);
 		Actuator ptz = new Actuator("ptz-"+id, userId, appId, "PTZ_CONTROL");

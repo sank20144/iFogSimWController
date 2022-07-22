@@ -30,6 +30,7 @@ import org.fog.placement.ModulePlacementEdgewards;
 import org.fog.placement.ModulePlacementMapping;
 import org.fog.policy.AppModuleAllocationPolicy;
 import org.fog.scheduler.StreamOperatorScheduler;
+import org.fog.utils.FController;
 import org.fog.utils.FogLinearPowerModel;
 import org.fog.utils.FogUtils;
 import org.fog.utils.TimeKeeper;
@@ -45,7 +46,9 @@ public class VRGameFog {
 	static List<Sensor> sensors = new ArrayList<Sensor>();
 	static List<Actuator> actuators = new ArrayList<Actuator>();
 	
-	static boolean CLOUD = false;
+	private static boolean CLOUD = true;
+	private static boolean CAPACITY = false; // Capacity placement defaults to cpu utilization
+	private static boolean EDGEWARDS = false;
 	
 	static int numOfDepts = 2;
 	static int numOfMobilesPerDept = 5;
@@ -92,7 +95,7 @@ public class VRGameFog {
 				moduleMapping.addModuleToDevice("connector", "cloud"); // fixing all instances of the Connector module to the Cloud
 				// rest of the modules will be placed by the Edge-ward placement policy
 			}
-			
+			FController.fogDevices = fogDevices;
 			
 			Controller controller = new Controller("master-controller", fogDevices, sensors, 
 					actuators);
@@ -132,6 +135,10 @@ public class VRGameFog {
 		for(int i=0;i<numOfDepts;i++){
 			addGw(i+"", userId, appId, proxy.getId()); // adding a fog device for every Gateway in physical topology. The parent of each gateway is the Proxy Server
 		}
+		
+		FController.CAPACITY = CAPACITY;
+		FController.CLOUD = CLOUD;
+		FController.EDGEWARDS = EDGEWARDS;
 		
 	}
 

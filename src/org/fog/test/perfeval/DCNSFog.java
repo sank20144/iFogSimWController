@@ -30,6 +30,7 @@ import org.fog.placement.ModulePlacementEdgewards;
 import org.fog.placement.ModulePlacementMapping;
 import org.fog.policy.AppModuleAllocationPolicy;
 import org.fog.scheduler.StreamOperatorScheduler;
+import org.fog.utils.FController;
 import org.fog.utils.FogLinearPowerModel;
 import org.fog.utils.FogUtils;
 import org.fog.utils.TimeKeeper;
@@ -48,12 +49,12 @@ public class DCNSFog {
 	
 	// All test variables
 	
-	static int numOfAreas = 20;
+	static int numOfAreas = 6;
 	static int numOfCamerasPerArea = 3;
 	
-	private static boolean CLOUD = false;
+	private static boolean CLOUD = true;
 	private static boolean CAPACITY = false; // Capacity placement defaults to cpu utilization
-	private static boolean EDGEWARDS = true;
+	private static boolean EDGEWARDS = false;
 	
 	
 	
@@ -82,18 +83,19 @@ public class DCNSFog {
 			
 			ModuleMapping moduleMapping = ModuleMapping.createModuleMapping(); // initializing a module mapping
 			for(FogDevice device : fogDevices){
-				if(device.getName().startsWith("m")){ // names of all Smart Cameras start with 'm' 
+				if(device.getName().startsWith("m") && !CLOUD){ // names of all Smart Cameras start with 'm' 
 					moduleMapping.addModuleToDevice("motion_detector", device.getName());  // fixing 1 instance of the Motion Detector module to each Smart Camera
 				}
 			}
 			moduleMapping.addModuleToDevice("user_interface", "cloud"); // fixing instances of User Interface module in the Cloud
 			if(CLOUD){
 				// if the mode of deployment is cloud-based
+				moduleMapping.addModuleToDevice("motion_detector", "cloud");
 				moduleMapping.addModuleToDevice("object_detector", "cloud"); // placing all instances of Object Detector module in the Cloud
 				moduleMapping.addModuleToDevice("object_tracker", "cloud"); // placing all instances of Object Tracker module in the Cloud
 			}
 			
-			//FogUtils.fogDevices = fogDevices;
+			FController.fogDevices = fogDevices;
 			
 			controller = new Controller("master-controller", fogDevices, sensors, 
 					actuators);
@@ -132,9 +134,9 @@ public class DCNSFog {
 			addArea(i+"", userId, appId, proxy.getId());
 		}
 		//Propagates placement strategy
-		//FogUtils.CAPACITY = CAPACITY;
-		//FogUtils.CLOUD = CLOUD;
-		//FogUtils.EDGEWARDS = EDGEWARDS;
+		FController.CAPACITY = CAPACITY;
+		FController.CLOUD = CLOUD;
+		FController.EDGEWARDS = EDGEWARDS;
 	}
 
 	private static FogDevice addArea(String id, int userId, String appId, int parentId){

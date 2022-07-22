@@ -689,10 +689,6 @@ public class FogDevice extends PowerDatacenter {
 
     protected void processTupleArrival(SimEvent ev) {
         Tuple tuple = (Tuple) ev.getData();
-
-        if (getName().equals("cloud")) {
-            updateCloudTraffic();
-        }
         
         try {
 			List<List<String>> rows = Arrays.asList(
@@ -738,7 +734,10 @@ public class FogDevice extends PowerDatacenter {
 			}catch(Exception e) {
 				
 			}
-        
+
+        if (getName().equals("cloud")) {
+            updateCloudTraffic();
+        }
         
         // Random Placement
         if(getName().startsWith("m") && (!FController.CLOUD && !FController.CAPACITY && !FController.EDGEWARDS)) { // Is a camera?
@@ -763,7 +762,7 @@ public class FogDevice extends PowerDatacenter {
         	}
         	int pid = parentId;
         	System.out.print(routerIds);
-    		parentId = FController.getCapacityPlacement(routerIds, FController.CPU_UTILIZATION);
+    		parentId = FController.getCapacityPlacement(routerIds, FController.CPU_UTILIZATION, tuple);
     		
     		System.out.println("CAPACITY |Setting parentId from :" + pid + " to:" + parentId + " for " + getName());
         }

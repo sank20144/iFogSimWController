@@ -5,6 +5,7 @@ import java.util.Random;
 
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.fog.entities.FogDevice;
+import org.fog.entities.Tuple;
 
 public class FController {
 	
@@ -28,7 +29,7 @@ public class FController {
 		return parentIds.get(rando);
 	}
 	
-	public static int getCapacityPlacement(List<Integer> parentIds, int utilizationMode) {
+	public static int getCapacityPlacement(List<Integer> parentIds, int utilizationMode, Tuple tuple) {
 		
 		int id = parentIds.get(0);
 		
@@ -49,7 +50,10 @@ public class FController {
 				FogDevice device = (FogDevice)CloudSim.getEntity(i);
 				double util = device.getHost().getUtilizationOfCpu();
 				double nextEnergy = device.getNextEnergyConsumption();
-				double cost = util + nextEnergy;
+				double latency = device.getUplinkLatency();
+				
+				double cost = util + nextEnergy + latency;
+				
 				
 				//System.out.print("ID:"+i+"|Energy:"+nextEnergy+"|Cost:"+cost + "| ");
 				if (cost < highestCost) 
