@@ -36,6 +36,8 @@ public class Tuple extends Cloudlet{
 	/* keep track of traversed microservices by tuples of type UP in microservices architecture UP -> tuple travelling towards service
 	 DOWN -> tuple travelling from service to client microservice.*/
 	protected Map<String, Integer> traversedMicroservices = new HashMap<>();
+	private double cost;
+	
 	
 	public Tuple(String appId, int cloudletId, int direction, long cloudletLength, int pesNumber,
 			long cloudletFileSize, long cloudletOutputSize,
@@ -50,6 +52,7 @@ public class Tuple extends Cloudlet{
 		setSourceDeviceId(-1);
 		setModuleCopyMap(new HashMap<String, Integer>());
 		setDestinationDeviceId(-1);
+		setCost(-1);
 	}
 
 	public int getActualTupleId() {
@@ -158,6 +161,14 @@ public class Tuple extends Cloudlet{
 
 	public void setTraversedMicroservices(Map<String, Integer> traversed) {
 		traversedMicroservices = traversed;
+	}
+
+	public double getCost() {
+		return cost;
+	}
+
+	public void setCost(double cost) {
+		this.cost = cost;
 	}
 
 }

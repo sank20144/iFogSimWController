@@ -45,11 +45,11 @@ public class RP_new {
 	
 	// All test variables
 	
-	static int numOfAreas = 4;
+	static int numOfAreas = 2;
 	static int numOfCamerasPerArea = 2;
 	
-	private static boolean CLOUD = true;
-	private static boolean CAPACITY = false; // Capacity placement defaults to cpu utilization
+	private static boolean CLOUD = false;
+	private static boolean CAPACITY = true; // Capacity placement defaults to cpu utilization
 	private static boolean EDGEWARDS = false;
 	
 	

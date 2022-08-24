@@ -28,6 +28,14 @@ public class FController {
 		int rando= r.nextInt(parentIds.size());
 		return parentIds.get(rando);
 	}
+	public static double getCost(FogDevice device) {
+		double util = device.getHost().getUtilizationOfCpu();
+		double nextEnergy = device.getNextEnergyConsumption();
+		double latency = device.getUplinkLatency();
+		
+		double cost = util + nextEnergy + latency;
+		return cost;
+	}
 	
 	public static int getCapacityPlacement(List<Integer> parentIds, int utilizationMode, Tuple tuple) {
 		
@@ -41,20 +49,14 @@ public class FController {
 			
 			//double clock = CloudSim.clock();
 			//double luut = ((FogDevice)CloudSim.getEntity(parentIds.get(0))).getLuut();
-			
-			double highestCpuUtilization = ((FogDevice)CloudSim.getEntity(parentIds.get(0))).getHost().getUtilizationOfCpu(); //Get Current CPU utilization of first Fog Device
-			double fe = ((FogDevice)CloudSim.getEntity(parentIds.get(0))).getNextEnergyConsumption(); //Get next energy consumption
-			double highestCost = highestCpuUtilization + fe;
+			FogDevice firstDevice = (FogDevice)CloudSim.getEntity(parentIds.get(0));
+			//double highestCpuUtilization = ((FogDevice)CloudSim.getEntity(parentIds.get(0))).getHost().getUtilizationOfCpu(); //Get Current CPU utilization of first Fog Device
+			//double fe = ((FogDevice)CloudSim.getEntity(parentIds.get(0))).getNextEnergyConsumption(); //Get next energy consumption
+			double highestCost = getCost(firstDevice);
 			// Select the FogDevice with the lowest CPU utilization and return the ParentId
 			for(Integer i: parentIds) { 
 				FogDevice device = (FogDevice)CloudSim.getEntity(i);
-				double util = device.getHost().getUtilizationOfCpu();
-				double nextEnergy = device.getNextEnergyConsumption();
-				double latency = device.getUplinkLatency();
-				
-				double cost = util + nextEnergy + latency;
-				
-				
+				double cost = getCost(device);
 				//System.out.print("ID:"+i+"|Energy:"+nextEnergy+"|Cost:"+cost + "| ");
 				if (cost < highestCost) 
 					id = i;

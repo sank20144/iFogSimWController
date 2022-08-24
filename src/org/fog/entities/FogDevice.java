@@ -90,7 +90,6 @@ public class FogDevice extends PowerDatacenter {
     protected boolean isClusterLinkBusy; //Flag denoting whether the link connecting to cluster from this FogDevice is busy
     protected double clusterLinkBandwidth;
 
-
     public FogDevice(
             String name,
             FogDeviceCharacteristics characteristics,
@@ -689,7 +688,43 @@ public class FogDevice extends PowerDatacenter {
 
     protected void processTupleArrival(SimEvent ev) {
         Tuple tuple = (Tuple) ev.getData();
+
+        if (getName().equals("cloud")) {
+            updateCloudTraffic();
+        }
         
+        // Random Placement
+        if(getName().startsWith("m") && (!FController.CLOUD && !FController.CAPACITY && !FController.EDGEWARDS)) { // Is a camera?
+        	List<Integer> routerIds = new ArrayList<>();
+        	for (FogDevice device: FController.getFogDevices()) {
+        		if(device.getName().startsWith("d")) { // All routers
+        			routerIds.add(device.getId());
+        		}
+        	}
+        	int pid = parentId;
+    		parentId = FController.getRandomPlacement(routerIds);
+    		System.out.println("RANDOM |Setting parentId from :" + pid + " to:" + parentId + " for " + getName());
+        }
+        
+        //Capacity Placement
+        if(getName().startsWith("m") && FController.CAPACITY && !FController.CLOUD && !FController.EDGEWARDS) { // Is a camera?
+        	List<Integer> routerIds = new ArrayList<>();
+        	for (FogDevice device: FController.getFogDevices()) {
+        		if(device.getName().startsWith("d")) { // All routers
+        			routerIds.add(device.getId());
+        		}
+        	}
+        	int pid = parentId;
+        	System.out.print(routerIds);
+    		parentId = FController.getCapacityPlacement(routerIds, FController.CPU_UTILIZATION, tuple);
+    		
+    		System.out.println("CAPACITY |Setting parentId from :" + pid + " to:" + parentId + " for " + getName());
+        }
+        
+        if(parentId != -1 && tuple.getCost() == -1) {
+	        FogDevice dev = (FogDevice) CloudSim.getEntity(parentId);
+	        tuple.setCost(FController.getCost(dev)) ;	 
+        }
         try {
 			List<List<String>> rows = Arrays.asList(
 					Arrays.asList(
@@ -728,44 +763,13 @@ public class FogDevice extends PowerDatacenter {
 				    		Logger.getNodeAction(tuple, this),
 				    		String.valueOf(getEnergyConsumption()),
 				    		String.valueOf(Logger.getTotalEnergy()),
-				    		String.valueOf(NetworkUsageMonitor.getNetworkUsage() / Config.MAX_SIMULATION_TIME)
+				    		String.valueOf(NetworkUsageMonitor.getNetworkUsage() / Config.MAX_SIMULATION_TIME),
+				    		String.valueOf(tuple.getCost())
 							));
 			Logger.printTupleToCsv(rows);
 			}catch(Exception e) {
 				
 			}
-
-        if (getName().equals("cloud")) {
-            updateCloudTraffic();
-        }
-        
-        // Random Placement
-        if(getName().startsWith("m") && (!FController.CLOUD && !FController.CAPACITY && !FController.EDGEWARDS)) { // Is a camera?
-        	List<Integer> routerIds = new ArrayList<>();
-        	for (FogDevice device: FController.getFogDevices()) {
-        		if(device.getName().startsWith("d")) { // All routers
-        			routerIds.add(device.getId());
-        		}
-        	}
-        	int pid = parentId;
-    		parentId = FController.getRandomPlacement(routerIds);
-    		System.out.println("RANDOM |Setting parentId from :" + pid + " to:" + parentId + " for " + getName());
-        }
-        
-        //Capacity Placement
-        if(getName().startsWith("m") && FController.CAPACITY && !FController.CLOUD && !FController.EDGEWARDS) { // Is a camera?
-        	List<Integer> routerIds = new ArrayList<>();
-        	for (FogDevice device: FController.getFogDevices()) {
-        		if(device.getName().startsWith("d")) { // All routers
-        			routerIds.add(device.getId());
-        		}
-        	}
-        	int pid = parentId;
-        	System.out.print(routerIds);
-    		parentId = FController.getCapacityPlacement(routerIds, FController.CPU_UTILIZATION, tuple);
-    		
-    		System.out.println("CAPACITY |Setting parentId from :" + pid + " to:" + parentId + " for " + getName());
-        }
 		
 		/*if(getName().equals("d-0") && tuple.getTupleType().equals("_SENSOR")){
 			System.out.println(++numClients);

@@ -160,6 +160,8 @@ public class Logger {
 			csvWriter.append("o	Total Energy consumed ");
 			csvWriter.append(",");
 			csvWriter.append("o	Total network usage ");
+			csvWriter.append(",");
+			csvWriter.append("Cost ");
 			csvWriter.append("\n");
 		}
 		csvWriter.append(iteration + ",");
